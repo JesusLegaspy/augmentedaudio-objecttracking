@@ -20,12 +20,6 @@ class UnityTracker:
     def __exit__(self, exc_type, exc_value, traceback):
         self.uconnect.close()
 
-    def send(self, x, y, z):
-        cmd = "C(" + f"{x:.4f}" + ","
-        cmd = cmd + f"{y:.4f}" + ","
-        cmd = cmd + f"{z:.4f}" + ")"
-        self.uconnect.send(cmd)
-
     def add(self, coord):
         # filtering
         for i, cF in enumerate(self.frame):
@@ -65,11 +59,9 @@ class UnityTracker:
                 done[short_dist[0]] = True
                 move.append((ps_idx, short_dist[0]))
 
-        # Destroy/ Create
+        # Create in Unity and add to point store
         for ele in move:
             create[ele[1]] = False
-
-        # Create in Unity and add to point store
         create_indices = [i for i, c in enumerate(create) if c is True]
         self.create_points = [self.frame[i] for i in create_indices]
         print("Added to create points: ", self.create_points)
@@ -99,10 +91,10 @@ class UnityTracker:
         if len(destroy_points) != 0:
             self.uconnect.destroy(destroy_points)
 
+        # Refresh
         self.create_points = []
         self.frame = []
 
     def async_get_uid(self, uids):
         for i, uid in enumerate(uids):
             self.pointStore.append([uid, 0, self.create_points[i]])
-

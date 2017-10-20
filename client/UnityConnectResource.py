@@ -50,7 +50,7 @@ class UnityConnect:
         uids = list(map(int, string.split(',')))  # uids are ID's Unity returns
         self.run_this(uids)
 
-    def cmd_builder(self, action, coord, uid = ""):
+    def cmd_builder(self, action, coord, uid=""):
         cmd = action + str(uid) + "(" + f"{coord[0]:.4f}" + ","
         cmd = cmd + f"{coord[1]:.4f}" + ","
         cmd = cmd + f"{coord[2]:.4f}" + ")"
