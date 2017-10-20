@@ -3,11 +3,12 @@ from UnityConnectResource import UnityConnect
 class UnityTracker:
     RADIUS = 4
     FILTER = 1
+    PERSISTENCE = 4  # Frames
     uconnect = UnityConnect()
 
-    prevFrame = [] #deprecated
     pointStore = []
-    currFrame = []
+    frame = []
+    create_points = []
 
     def __init__(self):
         self.uconnect.DEBUG = True
@@ -27,67 +28,81 @@ class UnityTracker:
 
     def add(self, coord):
         # filtering
-        for i, cF in enumerate(self.currFrame):
+        for i, cF in enumerate(self.frame):
             dist = (cF[0] - coord[0]) ** 2 + (cF[1] - coord[1]) ** 2 + (cF[2] - coord[2]) ** 2
             if dist <= (self.FILTER ** 2):
                 x = cF[0] + (abs(cF[0] - coord[0]) / 2)
                 y = cF[1] + (abs(cF[1] - coord[1]) / 2)
                 z = cF[2] + (abs(cF[2] - coord[2]) / 2)
-                self.currFrame[i] = (x, y, z)
+                self.frame[i] = (x, y, z)
                 return
-        self.currFrame.append(coord)
+        self.frame.append(coord)
 
     def next_frame(self):
-        c_done = [False] * len(self.currFrame)  # link found on curr frame
+        done = [False] * len(self.frame)  # link found on curr frame
         move = []
-        create = [True] * len(self.currFrame)
-        destroy = [True] * len(self.prevFrame)
+        create = [True] * len(self.frame)
+
+        print("***New Frame***")
+        print("Point store", self.pointStore)
 
         # Link objects from both frames based on distance
         # Note: this algorithm doesn't try to get the most links possible
-        if len(self.prevFrame) != 0:
-            for pI in range(0, len(self.prevFrame)):
-                short_dist = None
-                for cI in range(0, len(self.currFrame)):
-                    if not c_done[cI]:
-                        dist = (self.currFrame[cI][0] - self.prevFrame[pI][0]) ** 2
-                        dist += (self.currFrame[cI][1] - self.prevFrame[pI][1]) ** 2
-                        dist += (self.currFrame[cI][2] - self.prevFrame[pI][2]) ** 2
-                        if dist <= self.RADIUS ** 2:
-                            if short_dist is None:
-                                short_dist = (cI, dist)
-                            else:
-                                if dist < short_dist[1]:
-                                    short_dist = (cI, dist)
-                if short_dist is not None:
-                    c_done[short_dist[0]] = True
-                    move.append((pI, short_dist[0]))
+        for ps_idx, point in enumerate(self.pointStore):
+            short_dist = None
+            for fr_idx, coord in enumerate(self.frame):
+                if not done[fr_idx]:
+                    dist = (coord[0] - point[2][0]) ** 2
+                    dist += (coord[1] - point[2][1]) ** 2
+                    dist += (coord[2] - point[2][2]) ** 2
+                    if dist <= self.RADIUS ** 2:
+                        if short_dist is None:
+                            short_dist = (fr_idx, dist)
+                        else:
+                            if dist < short_dist[1]:
+                                short_dist = (fr_idx, dist)
+            if short_dist is not None:
+                done[short_dist[0]] = True
+                move.append((ps_idx, short_dist[0]))
 
         # Destroy/ Create
         for ele in move:
-            destroy[ele[0]] = False
             create[ele[1]] = False
 
-        self.uconnect.create(self.currFrame, self.async_get_uid)
+        # Create in Unity and add to point store
+        create_indices = [i for i, c in enumerate(create) if c is True]
+        self.create_points = [self.frame[i] for i in create_indices]
+        print("Added to create points: ", self.create_points)
+        if len(self.create_points) != 0:
+            self.uconnect.create(self.create_points, self.async_get_uid)
 
-        '''
-        #debug stuffs
-        sendMoveIndex = [item[1] for item in move]
-        sendMove = [self.currFrame[i] for i in sendMoveIndex]
-        ids = list(range(len(sendMove)))
-        desired_list = [x + (z,) for x, (y, z) in zip(ids, sendMove)]
-        self.uconnect.move(desired_list)
-        '''
+        # Move linked points
+        for ele in move:  # todo: optimise with above
+            self.pointStore[ele[0]][2] = self.frame[ele[1]]
+            self.pointStore[ele[0]][1] = 0
+        move_points = [[self.pointStore[ele[0]][0], self.pointStore[ele[0]][2]] for ele in move]
+        print("Moving following points: ", move_points)
+        if len(move_points) != 0:
+            self.uconnect.move(move_points)
 
-        self.prevFrame = list(self.currFrame)
-        self.currFrame = []
+        # Destroy old points
+        destroy_points = []
+        new_point_store = []
+        for point in self.pointStore:
+            if point[1] >= self.PERSISTENCE:
+                destroy_points.append([point[0], point[2]])
+                continue
+            new_point_store.append(point)
+            point[1] += 1
+        self.pointStore = new_point_store
+        print("Destroying following points", destroy_points)
+        if len(destroy_points) != 0:
+            self.uconnect.destroy(destroy_points)
 
-    def save_to_point_store(self, uid, coord):
-        self.pointStore.append((uid, 0, coord))
+        self.create_points = []
+        self.frame = []
 
     def async_get_uid(self, uids):
-        if len(uids) != len(self.currFrame):
-            raise ValueError("Unexpected number of uid's received from Unity!")
         for i, uid in enumerate(uids):
-            self.save_to_point_store(uid, self.currFrame[i])
+            self.pointStore.append([uid, 0, self.create_points[i]])
 
