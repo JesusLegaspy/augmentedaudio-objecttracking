@@ -1,6 +1,9 @@
 from UnityTrackerResource import UnityTracker
+from time import sleep
 
 with UnityTracker() as unity:
+    print("Waiting 5 seconds...")
+    sleep(5)
     for x in range(0, 10):
         unity.add((x, x, x))
     unity.add((15, 15, 15))
@@ -25,3 +28,5 @@ with UnityTracker() as unity:
     unity.next_frame()
     unity.next_frame()
     unity.next_frame()
+    sleep(1)
+    print("Done!")
