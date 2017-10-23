@@ -6,20 +6,21 @@ class UnityConnect:
     client = UnityClient()
     run_this = None
 
-    DEV_MODE = True
+    DEV_NO_UNITY = False
+    DEV_MOCK_RECEIVE = True
     developer_uid = [False]
 
     def __init__(self):
         return
 
     def connect(self):
-        if self.DEV_MODE:
+        if self.DEV_NO_UNITY:
             return
         self.client.connect()
 
     # points === [ID,(x, y, z)]
     def move(self, points):
-        if self.DEV_MODE:
+        if self.DEV_NO_UNITY:
             return
         logging.debug("UnityConnect.move")
         message = self.message_builder("M", points)
@@ -27,23 +28,29 @@ class UnityConnect:
 
     def destroy(self, points):
         logging.debug("UnityConnect.destroy")
-        if self.DEV_MODE:
+        if self.DEV_NO_UNITY or self.DEV_MOCK_RECEIVE:
             for point in points:
                 self.developer_uid[point[0]] = False
-            return
+            if self.DEV_NO_UNITY:
+                return
         message = self.message_builder("D", points)
         self.client.send(message)
 
     # coords === (x, y, z)
     def create(self, coords, uid_action_function):
         logging.debug("UnityConnect.create")
-        if self.DEV_MODE:
+        if self.DEV_NO_UNITY:
             uids = self.dev_build_receive_uids(coords)
             uid_action_function(uids)
             return
         points = list(zip([""] * len(coords), coords))  # ("",(x,y,z))
         message = self.message_builder("C", points)
         self.run_this = uid_action_function
+        if self.DEV_MOCK_RECEIVE:
+            self.client.send(message)
+            uids = self.dev_build_receive_uids(coords)
+            uid_action_function(uids)
+            return
         self.client.send_with_response(message, self.message_decoder)
 
     def message_decoder(self, string):
@@ -51,6 +58,8 @@ class UnityConnect:
         self.run_this(uids)
 
     def cmd_builder(self, action, coord, uid=""):
+        if action == "D":
+            return "D" + str(uid)
         cmd = action + str(uid) + "(" + f"{coord[0]:.4f}" + ","
         cmd = cmd + f"{coord[1]:.4f}" + ","
         cmd = cmd + f"{coord[2]:.4f}" + ")"
@@ -67,7 +76,7 @@ class UnityConnect:
         return message
 
     def close(self):
-        if self.DEV_MODE:
+        if self.DEV_NO_UNITY:
             return
         self.client.close()
 
