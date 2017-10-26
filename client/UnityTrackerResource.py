@@ -11,13 +11,12 @@ class UnityTracker:
     create_points = []
 
     def __init__(self):
-        self.uconnect.DEBUG = True
+        return
+
+    def connect(self):
         self.uconnect.connect()
 
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
+    def close(self):
         self.uconnect.close()
 
     def add(self, coord):
