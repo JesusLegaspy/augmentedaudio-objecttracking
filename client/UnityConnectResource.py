@@ -1,4 +1,4 @@
-from UnityClientResource import UnityClient
+from client.UnityClientResource import UnityClient
 import logging
 
 
@@ -6,7 +6,7 @@ class UnityConnect:
     client = UnityClient()
     run_this = None
 
-    DEV_NO_UNITY = False
+    DEV_NO_UNITY = True
     DEV_MOCK_RECEIVE = True
     developer_uid = [False]
 

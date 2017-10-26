@@ -1,4 +1,4 @@
-from UnityConnectResource import UnityConnect
+from client.UnityConnectResource import UnityConnect
 
 class UnityTracker:
     RADIUS = 4
