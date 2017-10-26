@@ -24,7 +24,7 @@ import pyzed.types as tp
 import pyzed.core as core
 import math
 import numpy as np
-
+import logging
 
 
 def func(tuple_arr, zed, unity):
@@ -56,7 +56,7 @@ def func(tuple_arr, zed, unity):
             # Retrieve colored point cloud. Point cloud is aligned on the left image.
             zed.retrieve_measure(point_cloud, sl.PyMEASURE.PyMEASURE_XYZRGBA)
 
-            # Get and print distance value in mm at the center of the image
+            # Get and logging.debug distance value in mm at the center of the image
             # We measure the distance camera - object using Euclidean distance
 
             for tuple in range(len(tuple_arr)):
@@ -74,7 +74,7 @@ def func(tuple_arr, zed, unity):
                     distance = (distance * float(25))/float(8000) ## coz we want max range of 8m and unity has max scale of 100
                     x = float (x*25) / float (1280)
                     y = float (y*14.065) / float (720)
-                    print("Distance to Camera at ({0}, {1}): {2} mm\n".format(x, y, distance))
+                    logging.debug("Distance to Camera at ({0}, {1}): {2} mm\n".format(x, y, distance))
                     unity.add((x, y, distance))
 
         # Increment the loop
