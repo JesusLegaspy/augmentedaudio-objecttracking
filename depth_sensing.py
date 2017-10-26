@@ -68,7 +68,12 @@ def func(tuple_arr, zed, unity):
                                      point_cloud_value[2] * point_cloud_value[2])
 
                 if not np.isnan(distance) and not np.isinf(distance):
-                    distance = round(distance)
+                    ## Unity calibration
+                    ## 1280/720 = 25/x -> x = 14.0625
+                    ## scaling factor will be 25/1280 and 14.0625/720 respectively
+                    distance = (distance * float(25))/float(8000) ## coz we want max range of 8m and unity has max scale of 100
+                    x = float (x*25) / float (1280)
+                    y = float (y*14.065) / float (720)
                     print("Distance to Camera at ({0}, {1}): {2} mm\n".format(x, y, distance))
                     unity.add((x, y, distance))
 
