@@ -40,15 +40,9 @@ category_index = label_map_util.create_category_index(categories)
 
 def detect_objects(image_np, sess, detection_graph):
     # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
-    ticks = time.time()
-    frame = image_np.tolist()
-    for i in frame:
-        for j in i:
-            j.pop()
-    image_np = np.array(frame)
-    image_np_expanded = np.expand_dims(image_np, axis=0)
+    image_np_expanded = np.expand_dims(image_np[:, :, :-1], axis=0)
 
-    logging.debug('[INFO] elapsed time for the array weirdness: {:.2f}'.format(time.time() - ticks))
+    #print('[INFO] elapsed time for the array weirdness: {:.9f}'.format(time.time() - ticks))
 
     image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
 

@@ -6,7 +6,7 @@ class UnityConnect:
     client = UnityClient()
     run_this = None
 
-    DEV_NO_UNITY = True
+    DEV_NO_UNITY = False
     DEV_MOCK_RECEIVE = True
     developer_uid = [False]
 
