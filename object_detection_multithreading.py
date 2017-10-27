@@ -4,6 +4,7 @@ import time
 import argparse
 import numpy as np
 import tensorflow as tf
+import logging
 
 from queue import Queue
 from threading import Thread
@@ -39,15 +40,9 @@ category_index = label_map_util.create_category_index(categories)
 
 def detect_objects(image_np, sess, detection_graph):
     # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
-    ticks = time.time()
-    frame = image_np.tolist()
-    for i in frame:
-        for j in i:
-            j.pop()
-    image_np = np.array(frame)
-    image_np_expanded = np.expand_dims(image_np, axis=0)
+    image_np_expanded = np.expand_dims(image_np[:, :, :-1], axis=0)
 
-    print('[INFO] elapsed time for the array weirdness: {:.2f}'.format(time.time() - ticks))
+    #print('[INFO] elapsed time for the array weirdness: {:.9f}'.format(time.time() - ticks))
 
     image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
 
@@ -60,7 +55,7 @@ def detect_objects(image_np, sess, detection_graph):
     classes = detection_graph.get_tensor_by_name('detection_classes:0')
     num_detections = detection_graph.get_tensor_by_name('num_detections:0')
 
-    ##print(image_np_expanded.shape)
+    ##logging.debug(image_np_expanded.shape)
     # Actual detection.
     (boxes, scores, classes, num_detections) = sess.run(
         [boxes, scores, classes, num_detections],
@@ -145,7 +140,7 @@ if __name__ == '__main__':
             # A new image is available if grab() returns PySUCCESS
             zed.retrieve_image(image, sl.PyVIEW.PyVIEW_LEFT)
             timestamp = zed.get_camera_timestamp()  # Get the timestamp at the time the image was captured
-            print("Image resolution: {0} x {1} || Image timestamp: {2}\n".format(image.get_width(), image.get_height(), timestamp))
+            logging.debug("Image resolution: {0} x {1} || Image timestamp: {2}\n".format(image.get_width(), image.get_height(), timestamp))
             frame = image.get_data()
 
             '''
@@ -183,10 +178,8 @@ if __name__ == '__main__':
                     ymin = int(point['ymin'] * args.height)
                     ymax = int(point['ymax'] * args.height)
                     center = int(xmin + float(xmax-xmin)/2), int(ymin + float(ymax-ymin)/2)
-                    coord = "(%s,%s), (%s,%s), (%s,%s), (%s,%s)", xmin,ymin,xmax,ymin,xmax,ymax,xmin,ymax
                     centers.append(center)
-                    print (centers)
-                    print (centers[0][0], centers[0][1])
+                    logging.debug (centers[0][0], centers[0][1])
 
                 if (len(centers) > 0):
                     func(centers,zed,unity)
@@ -196,14 +189,14 @@ if __name__ == '__main__':
 
             fps.update()
 
-            print('[INFO] elapsed time: {:.2f}'.format(time.time() - t))
+            logging.debug('[INFO] elapsed time: {:.2f}'.format(time.time() - t))
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
     fps.stop()  # Lol IDK
-    print('[INFO] elapsed time (total): {:.2f}'.format(fps.elapsed()))
-    print('[INFO] approx. FPS: {:.2f}'.format(fps.fps()))
+    logging.debug('[INFO] elapsed time (total): {:.2f}'.format(fps.elapsed()))
+    logging.debug('[INFO] approx. FPS: {:.2f}'.format(fps.fps()))
 
     zed.close()
     unity.close()

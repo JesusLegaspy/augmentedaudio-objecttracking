@@ -1,10 +1,11 @@
+import logging
 import socket
 import time
 
 
 class UnityClient:
     BUFFER_SIZE = 1024
-    INTERVAL_TIME = 0.02  # 0.02 is absolute minimum for now...
+    INTERVAL_TIME = 0.01  # 0.01 is absolute minimum for now...
     s = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
 
     def __init__(self, ip='fe80::1848:f36b:4df9:7903', port=13000):
@@ -14,7 +15,7 @@ class UnityClient:
 
     def connect(self):
         self.s.connect((self.TCP_IP, self.TCP_PORT, 0, 0))
-        print("UnityClient connected")
+        logging.debug("UnityClient connected")
 
     def send(self, message):
         elapsed = time.time() - self.oldTime
@@ -31,4 +32,4 @@ class UnityClient:
 
     def close(self):
         self.s.close()
-        print("UnityClient closed")
+        logging.debug("UnityClient closed")
