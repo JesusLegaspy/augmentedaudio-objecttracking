@@ -5,7 +5,7 @@ import time
 
 class UnityClient:
     BUFFER_SIZE = 1024
-    INTERVAL_TIME = 0.01  # 0.01 is absolute minimum for now...
+    INTERVAL_TIME = 0.0666666 # 0.066666 is absolute minimum for now...
     s = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
 
     def __init__(self, ip='fe80::1848:f36b:4df9:7903', port=13000):

@@ -20,6 +20,7 @@ class UnityConnect:
 
     # points === [ID,(x, y, z)]
     def move(self, points):
+        #print("Moving points: ", points)
         if self.DEV_NO_UNITY:
             return
         logging.debug("UnityConnect.move")
@@ -27,6 +28,7 @@ class UnityConnect:
         self.client.send(message)
 
     def destroy(self, points):
+        #print("Destroying points: ", points)
         logging.debug("UnityConnect.destroy")
         if self.DEV_NO_UNITY or self.DEV_MOCK_RECEIVE:
             for point in points:
@@ -38,6 +40,7 @@ class UnityConnect:
 
     # coords === (x, y, z)
     def create(self, coords, uid_action_function):
+        #print("Creating points: ", coords)
         logging.debug("UnityConnect.create")
         if self.DEV_NO_UNITY:
             uids = self.dev_build_receive_uids(coords)

@@ -1,12 +1,15 @@
 from client.UnityConnectResource import UnityConnect
 import logging
+import numpy as np
 
 
 class UnityTracker:
     RADIUS = 4
-    FILTER = 1
+    FILTER = 12
     PERSISTENCE = 4  # Frames
     uconnect = UnityConnect()
+
+    TEST_Z = []
 
     pointStore = []
     frame = []

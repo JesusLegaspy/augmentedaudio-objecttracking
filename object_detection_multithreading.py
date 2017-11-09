@@ -135,6 +135,8 @@ if __name__ == '__main__':
 
     fps = FPS().start()
 
+    counter = 0
+
     while True:
         if zed.grab(zcam.PyRuntimeParameters()) == tp.PyERROR_CODE.PySUCCESS:
             # A new image is available if grab() returns PySUCCESS
@@ -179,11 +181,12 @@ if __name__ == '__main__':
                     ymax = int(point['ymax'] * args.height)
                     center = int(xmin + float(xmax-xmin)/2), int(ymin + float(ymax-ymin)/2)
                     centers.append(center)
+                    #print(center)
                     logging.debug (centers[0][0], centers[0][1])
+                    counter = counter + 1
 
                 if (len(centers) > 0):
                     func(centers,zed,unity)
-
 
                 cv2.imshow('Video', frame)
 
@@ -201,3 +204,4 @@ if __name__ == '__main__':
     zed.close()
     unity.close()
     cv2.destroyAllWindows()
+
