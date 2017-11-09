@@ -28,15 +28,6 @@ import logging
 
 
 def func(tuple_arr, zed, unity):
-    # Create a PyInitParameters object and set configuration parameters
-    init_params = zcam.PyInitParameters()
-    init_params.depth_mode = sl.PyDEPTH_MODE.PyDEPTH_MODE_PERFORMANCE  # Use PERFORMANCE depth mode
-    init_params.coordinate_units = sl.PyUNIT.PyUNIT_MILLIMETER  # Use milliliter units (for depth measurements)
-
-    # Create and set PyRuntimeParameters after opening the camera
-    runtime_parameters = zcam.PyRuntimeParameters()
-    runtime_parameters.sensing_mode = sl.PySENSING_MODE.PySENSING_MODE_STANDARD  # Use STANDARD sensing mode
-
     # Capture 50 images and depth, then stop
     i = 0
     image = core.PyMat()
