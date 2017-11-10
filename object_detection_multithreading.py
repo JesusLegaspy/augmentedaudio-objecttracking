@@ -105,7 +105,7 @@ if __name__ == '__main__':
                         default=376, help='Height of the frames in the video stream.')
     args = parser.parse_args() # TODO: Don't use params for resolution. It breaks things.
 
-    input_q = Queue(5)  # fps is better if queue is higher but then more lags
+    input_q = Queue(2)  # fps is better if queue is higher but then more lags
     output_q = Queue()
     for i in range(1):
         t = Thread(target=worker, args=(input_q, output_q))

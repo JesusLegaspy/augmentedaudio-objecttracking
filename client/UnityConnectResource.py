@@ -60,9 +60,9 @@ class UnityConnect:
     def cmd_builder(self, action, coord, uid=""):
         if action == "D":
             return "D" + str(uid)
-        cmd = action + str(uid) + "(" + f"{coord[0]:.4f}" + ","
-        cmd = cmd + f"{coord[1]:.4f}" + ","
-        cmd = cmd + f"{coord[2]:.4f}" + ")"
+        cmd = action + str(uid) + "(" + "coord[0]" + ","
+        cmd = cmd + "coord[1]" + ","
+        cmd = cmd + "coord[2]" + ")" # Todo: truncate to 4 decimal places
         return cmd
 
     def message_builder(self, action, points):
