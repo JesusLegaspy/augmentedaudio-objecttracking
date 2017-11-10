@@ -98,17 +98,16 @@ def worker(input_q, output_q):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-src', '--source', dest='video_source', type=int,
-                        default=1, help='Device index of the camera.')
+                        default=0, help='Device index of the camera.')
     parser.add_argument('-wd', '--width', dest='width', type=int,
                         default=1280, help='Width of the frames in the video stream.')
     parser.add_argument('-ht', '--height', dest='height', type=int,
                         default=720, help='Height of the frames in the video stream.')
     args = parser.parse_args()
 
-
-    input_q = Queue(2)  # fps is better if queue is higher but then more lags
+    input_q = Queue(5)  # fps is better if queue is higher but then more lags
     output_q = Queue()
-    for i in range(41):
+    for i in range(1):
         t = Thread(target=worker, args=(input_q, output_q))
         t.daemon = True
         t.start()
@@ -124,14 +123,8 @@ if __name__ == '__main__':
 
     # Create a PyInitParameters object and set configuration parameters
     init_params = zcam.PyInitParameters()
-    init_params.camera_resolution = sl.PyRESOLUTION.PyRESOLUTION_VGA  # Use HD1080 video mode
+    init_params.camera_resolution = sl.PyRESOLUTION.PyRESOLUTION_HD720  # Use HD1080 video mode
     init_params.camera_fps = 30  # Set fps at 30
-    init_params.depth_mode = sl.PyDEPTH_MODE.PyDEPTH_MODE_PERFORMANCE  # Use PERFORMANCE depth mode
-    init_params.coordinate_units = sl.PyUNIT.PyUNIT_FOOT   # Use feet units (for depth measurements)
-
-    # Create and set PyRuntimeParameters after opening the camera
-    runtime_parameters = zcam.PyRuntimeParameters()
-    runtime_parameters.sensing_mode = sl.PySENSING_MODE.PySENSING_MODE_STANDARD  # Use STANDARD sensing mode
 
     # Open the camera
     err = zed.open(init_params)
