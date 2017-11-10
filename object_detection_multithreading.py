@@ -100,10 +100,10 @@ if __name__ == '__main__':
     parser.add_argument('-src', '--source', dest='video_source', type=int,
                         default=0, help='Device index of the camera.')
     parser.add_argument('-wd', '--width', dest='width', type=int,
-                        default=1280, help='Width of the frames in the video stream.')
+                        default=672, help='Width of the frames in the video stream.')
     parser.add_argument('-ht', '--height', dest='height', type=int,
-                        default=720, help='Height of the frames in the video stream.')
-    args = parser.parse_args()
+                        default=376, help='Height of the frames in the video stream.')
+    args = parser.parse_args() # TODO: Don't use params for resolution. It breaks things.
 
     input_q = Queue(5)  # fps is better if queue is higher but then more lags
     output_q = Queue()
@@ -123,8 +123,14 @@ if __name__ == '__main__':
 
     # Create a PyInitParameters object and set configuration parameters
     init_params = zcam.PyInitParameters()
-    init_params.camera_resolution = sl.PyRESOLUTION.PyRESOLUTION_HD720  # Use HD1080 video mode
+    init_params.camera_resolution = sl.PyRESOLUTION.PyRESOLUTION_VGA  # Use HD1080 video mode
     init_params.camera_fps = 30  # Set fps at 30
+    init_params.depth_mode = sl.PyDEPTH_MODE.PyDEPTH_MODE_PERFORMANCE  # Use PERFORMANCE depth mode
+    init_params.coordinate_units = sl.PyUNIT.PyUNIT_FOOT  # Use Feet units (for depth measurements)
+
+    # Create and set PyRuntimeParameters after opening the camera
+    runtime_parameters = zcam.PyRuntimeParameters()
+    runtime_parameters.sensing_mode = sl.PySENSING_MODE.PySENSING_MODE_STANDARD  # Use STANDARD sensing mode
 
     # Open the camera
     err = zed.open(init_params)
@@ -142,14 +148,6 @@ if __name__ == '__main__':
             timestamp = zed.get_camera_timestamp()  # Get the timestamp at the time the image was captured
             logging.debug("Image resolution: {0} x {1} || Image timestamp: {2}\n".format(image.get_width(), image.get_height(), timestamp))
             frame = image.get_data()
-
-            '''
-            frame = frame.tolist()
-            for i in frame:
-                for j in i:
-                    j.pop()
-            frame = np.array(frame)
-            '''
 
             input_q.put(frame)
 
@@ -179,11 +177,10 @@ if __name__ == '__main__':
                     ymax = int(point['ymax'] * args.height)
                     center = int(xmin + float(xmax-xmin)/2), int(ymin + float(ymax-ymin)/2)
                     centers.append(center)
-                    logging.debug (centers[0][0], centers[0][1])
+                    logging.debug(centers[0][0], centers[0][1])
 
                 if (len(centers) > 0):
-                    func(centers,zed,unity)
-
+                    func(centers, zed, unity)
 
                 cv2.imshow('Video', frame)
 
