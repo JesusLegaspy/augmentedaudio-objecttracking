@@ -23,7 +23,7 @@ class UnityClient:
         if wait > 0:
             time.sleep(wait)
         self.oldTime = time.time()
-        print(message.encode('utf-8')) 
+        print(message.encode('utf-8'))
         self.s.sendall(message.encode('utf-8'))
 
     def send_with_response(self, message, async_function):

@@ -1,5 +1,4 @@
 from client.UnityClientResource import UnityClient
-import logging
 
 
 class UnityConnect:
@@ -22,12 +21,12 @@ class UnityConnect:
     def move(self, points):
         if self.DEV_NO_UNITY:
             return
-        logging.debug("UnityConnect.move")
+        # logging.debug("UnityConnect.move")
         message = self.message_builder("M", points)
         self.client.send(message)
 
     def destroy(self, points):
-        logging.debug("UnityConnect.destroy")
+        # logging.debug("UnityConnect.destroy")
         if self.DEV_NO_UNITY or self.DEV_MOCK_RECEIVE:
             for point in points:
                 self.developer_uid[point[0]] = False
@@ -38,7 +37,7 @@ class UnityConnect:
 
     # coords === (x, y, z)
     def create(self, coords, uid_action_function):
-        logging.debug("UnityConnect.create")
+        # logging.debug("UnityConnect.create")
         if self.DEV_NO_UNITY:
             uids = self.dev_build_receive_uids(coords)
             uid_action_function(uids)
