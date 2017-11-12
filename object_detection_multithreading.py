@@ -97,11 +97,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-src', '--source', dest='video_source', type=int,
                         default=0, help='Device index of the camera.')
-    parser.add_argument('-wd', '--width', dest='width', type=int,
-                        default=672, help='Width of the frames in the video stream.')
-    parser.add_argument('-ht', '--height', dest='height', type=int,
-                        default=376, help='Height of the frames in the video stream.')
-    args = parser.parse_args()  # TODO: Don't use params for resolution. It breaks things.
+    args = parser.parse_args()
 
     input_q = Queue(2)  # fps is better if queue is higher but then more lags
     output_q = Queue()
@@ -157,19 +153,19 @@ if __name__ == '__main__':
                 class_names = data['class_names']
                 class_colors = data['class_colors']
                 for point, name, color in zip(rec_points, class_names, class_colors):
-                    cv2.rectangle(frame, (int(point['xmin'] * args.width), int(point['ymin'] * args.height)),
-                                  (int(point['xmax'] * args.width), int(point['ymax'] * args.height)), color, 3)
-                    cv2.rectangle(frame, (int(point['xmin'] * args.width), int(point['ymin'] * args.height)),
-                                  (int(point['xmin'] * args.width) + len(name[0]) * 6,
-                                   int(point['ymin'] * args.height) - 10), color, -1, cv2.LINE_AA)
-                    cv2.putText(frame, name[0], (int(point['xmin'] * args.width), int(point['ymin'] * args.height)),
+                    cv2.rectangle(frame, (int(point['xmin'] * image.get_width()), int(point['ymin'] * image.get_height())),
+                                  (int(point['xmax'] * image.get_width()), int(point['ymax'] * image.get_height())), color, 3)
+                    cv2.rectangle(frame, (int(point['xmin'] * image.get_width()), int(point['ymin'] * image.get_height())),
+                                  (int(point['xmin'] * image.get_width()) + len(name[0]) * 6,
+                                   int(point['ymin'] * image.get_height()) - 10), color, -1, cv2.LINE_AA)
+                    cv2.putText(frame, name[0], (int(point['xmin'] * image.get_width()), int(point['ymin'] * image.get_height())),
                                 font,
                                 0.3, (0, 0, 0), 1)
 
-                    xmin = int(point['xmin'] * args.width)
-                    xmax = int(point['xmax'] * args.width)
-                    ymin = int(point['ymin'] * args.height)
-                    ymax = int(point['ymax'] * args.height)
+                    xmin = int(point['xmin'] * image.get_width())
+                    xmax = int(point['xmax'] * image.get_width())
+                    ymin = int(point['ymin'] * image.get_height())
+                    ymax = int(point['ymax'] * image.get_height())
                     center = int(xmin + float(xmax - xmin) / 2), int(ymin + float(ymax - ymin) / 2)
                     centers.append(center)
                     # logging.debug(centers[0][0], centers[0][1])
