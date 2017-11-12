@@ -17,19 +17,14 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 ########################################################################
-
-import pyzed.camera as zcam
-import pyzed.defines as sl
-import pyzed.types as tp
-import pyzed.core as core
 import math
 import numpy as np
-import logging
+import pyzed.core as core
+import pyzed.defines as sl
 
 
 def func(tuple_arr, zed, unity):
     # Create and set PyRuntimeParameters after opening the camera
-    runtime_parameters = zcam.PyRuntimeParameters()
     point_cloud = core.PyMat()
 
     # A new image is available if grab() returns PySUCCESS
@@ -37,9 +32,8 @@ def func(tuple_arr, zed, unity):
     # Retrieve colored point cloud. Point cloud is aligned on the left image.
     zed.retrieve_measure(point_cloud, sl.PyMEASURE.PyMEASURE_XYZRGBA)
 
-    # Get and logging.debug distance value in mm at the center of the image
+    # Get and log distance value in mm at the center of the image
     # We measure the distance camera - object using Euclidean distance
-
     for tuple in range(len(tuple_arr)):
         x = tuple_arr[tuple][0]
         y = tuple_arr[tuple][1]
@@ -49,11 +43,11 @@ def func(tuple_arr, zed, unity):
                              point_cloud_value[2] * point_cloud_value[2])
 
         if not np.isnan(distance) and not np.isinf(distance):
-            ## Unity calibration
-            ## 1280/720 = 25/x -> x = 14.0625
-            ## scaling factor will be 25/1280 and 14.0625/720 respectively
-            ##distance = (distance * float(25))/float(8000) ## coz we want max range of 8m and unity has max scale of 100
-            x = float (x*25) / float (1280)
-            y = float (y*14.065) / float (720)
-            logging.debug("Distance to Camera at ({0}, {1}): {2} mm\n".format(x, y, distance))
+            # Unity calibration
+            # 1280/720 = 25/x -> x = 14.0625
+            # scaling factor will be 25/1280 and 14.0625/720 respectively
+            # distance = (distance * float(25))/float(8000) # coz we want max range of 8m and unity has max scale of 100
+            x = float(x * 25) / float(1280)
+            y = float(y * 14.065) / float(720)
+            # logging.debug("Distance to Camera at ({0}, {1}): {2} mm\n".format(x, y, distance))
             unity.add((x, y, distance))

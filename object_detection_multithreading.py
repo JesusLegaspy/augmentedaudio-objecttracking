@@ -1,23 +1,22 @@
-import os
-import cv2
-import time
 import argparse
-import numpy as np
-import tensorflow as tf
-import logging
-
+import os
+import time
 from queue import Queue
 from threading import Thread
-from utils.app_utils import FPS, WebcamVideoStream, draw_boxes_and_labels
-from object_detection.utils import label_map_util
-from depth_sensing import func
 
+import cv2
+import numpy as np
 import pyzed.camera as zcam
+import pyzed.core as core
 import pyzed.defines as sl
 import pyzed.types as tp
-import pyzed.core as core
+import tensorflow as tf
 
 from client.UnityTrackerResource import UnityTracker
+from depth_sensing import func
+from object_detection.utils import label_map_util
+from utils.app_utils import FPS, draw_boxes_and_labels
+
 unity = UnityTracker()
 
 CWD_PATH = os.getcwd()
@@ -42,7 +41,7 @@ def detect_objects(image_np, sess, detection_graph):
     # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
     image_np_expanded = np.expand_dims(image_np[:, :, :-1], axis=0)
 
-    #print('[INFO] elapsed time for the array weirdness: {:.9f}'.format(time.time() - ticks))
+    # print('[INFO] elapsed time for the array weirdness: {:.9f}'.format(time.time() - ticks))
 
     image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
 
@@ -55,12 +54,11 @@ def detect_objects(image_np, sess, detection_graph):
     classes = detection_graph.get_tensor_by_name('detection_classes:0')
     num_detections = detection_graph.get_tensor_by_name('num_detections:0')
 
-    ##logging.debug(image_np_expanded.shape)
+    # logging.debug(image_np_expanded.shape)
     # Actual detection.
     (boxes, scores, classes, num_detections) = sess.run(
         [boxes, scores, classes, num_detections],
         feed_dict={image_tensor: image_np_expanded})
-
 
     # Visualization of the results of a detection.
     rect_points, class_names, class_colors = draw_boxes_and_labels(
@@ -68,7 +66,7 @@ def detect_objects(image_np, sess, detection_graph):
         classes=np.squeeze(classes).astype(np.int32),
         scores=np.squeeze(scores),
         category_index=category_index,
-        min_score_thresh=.5
+        min_score_thresh=.4
     )
     return dict(rect_points=rect_points, class_names=class_names, class_colors=class_colors)
 
@@ -103,7 +101,7 @@ if __name__ == '__main__':
                         default=672, help='Width of the frames in the video stream.')
     parser.add_argument('-ht', '--height', dest='height', type=int,
                         default=376, help='Height of the frames in the video stream.')
-    args = parser.parse_args() # TODO: Don't use params for resolution. It breaks things.
+    args = parser.parse_args()  # TODO: Don't use params for resolution. It breaks things.
 
     input_q = Queue(2)  # fps is better if queue is higher but then more lags
     output_q = Queue()
@@ -111,11 +109,6 @@ if __name__ == '__main__':
         t = Thread(target=worker, args=(input_q, output_q))
         t.daemon = True
         t.start()
-    '''
-    video_capture = WebcamVideoStream(src=args.video_source,
-                                      width=args.width,
-                                      height=args.height).start()
-    '''
 
     unity.connect()
     # Create a PyZEDCamera object
@@ -123,8 +116,8 @@ if __name__ == '__main__':
 
     # Create a PyInitParameters object and set configuration parameters
     init_params = zcam.PyInitParameters()
-    init_params.camera_resolution = sl.PyRESOLUTION.PyRESOLUTION_VGA  # Use HD1080 video mode
-    init_params.camera_fps = 30  # Set fps at 30
+    init_params.camera_resolution = sl.PyRESOLUTION.PyRESOLUTION_VGA  # Use VGA video mode
+    init_params.camera_fps = 15  # Set fps at 15
     init_params.depth_mode = sl.PyDEPTH_MODE.PyDEPTH_MODE_PERFORMANCE  # Use PERFORMANCE depth mode
     init_params.coordinate_units = sl.PyUNIT.PyUNIT_FOOT  # Use Feet units (for depth measurements)
 
@@ -146,7 +139,8 @@ if __name__ == '__main__':
             # A new image is available if grab() returns PySUCCESS
             zed.retrieve_image(image, sl.PyVIEW.PyVIEW_LEFT)
             timestamp = zed.get_camera_timestamp()  # Get the timestamp at the time the image was captured
-            logging.debug("Image resolution: {0} x {1} || Image timestamp: {2}\n".format(image.get_width(), image.get_height(), timestamp))
+            # logging.debug("Image resolution: {0} x {1} || Image timestamp: {2}\n".format(image.get_width(),
+            # image.get_height(), timestamp))
             frame = image.get_data()
 
             input_q.put(frame)
@@ -168,32 +162,32 @@ if __name__ == '__main__':
                     cv2.rectangle(frame, (int(point['xmin'] * args.width), int(point['ymin'] * args.height)),
                                   (int(point['xmin'] * args.width) + len(name[0]) * 6,
                                    int(point['ymin'] * args.height) - 10), color, -1, cv2.LINE_AA)
-                    cv2.putText(frame, name[0], (int(point['xmin'] * args.width), int(point['ymin'] * args.height)), font,
+                    cv2.putText(frame, name[0], (int(point['xmin'] * args.width), int(point['ymin'] * args.height)),
+                                font,
                                 0.3, (0, 0, 0), 1)
 
                     xmin = int(point['xmin'] * args.width)
                     xmax = int(point['xmax'] * args.width)
                     ymin = int(point['ymin'] * args.height)
                     ymax = int(point['ymax'] * args.height)
-                    center = int(xmin + float(xmax-xmin)/2), int(ymin + float(ymax-ymin)/2)
+                    center = int(xmin + float(xmax - xmin) / 2), int(ymin + float(ymax - ymin) / 2)
                     centers.append(center)
-                    logging.debug(centers[0][0], centers[0][1])
+                    # logging.debug(centers[0][0], centers[0][1])
 
-                if (len(centers) > 0):
+                if len(centers) > 0:
                     func(centers, zed, unity)
 
                 cv2.imshow('Video', frame)
 
             fps.update()
-
-            logging.debug('[INFO] elapsed time: {:.2f}'.format(time.time() - t))
+            # logging.debug('[INFO] elapsed time: {:.2f}'.format(time.time() - t))
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
     fps.stop()  # Lol IDK
-    logging.debug('[INFO] elapsed time (total): {:.2f}'.format(fps.elapsed()))
-    logging.debug('[INFO] approx. FPS: {:.2f}'.format(fps.fps()))
+    # print('[INFO] elapsed time (total): {:.2f}'.format(fps.elapsed()))
+    print('[INFO] approx. FPS: {:.2f}'.format(fps.fps()))
 
     zed.close()
     unity.close()
