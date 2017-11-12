@@ -6,7 +6,7 @@ class UnityConnect:
     client = UnityClient()
     run_this = None
 
-    DEV_NO_UNITY = True
+    DEV_NO_UNITY = False
     DEV_MOCK_RECEIVE = True
     developer_uid = [False]
 
@@ -60,9 +60,9 @@ class UnityConnect:
     def cmd_builder(self, action, coord, uid=""):
         if action == "D":
             return "D" + str(uid)
-        cmd = action + str(uid) + "(" + "coord[0]" + ","
-        cmd = cmd + "coord[1]" + ","
-        cmd = cmd + "coord[2]" + ")" # Todo: truncate to 4 decimal places
+        cmd = action + str(uid) + "(" + "{:.4f}".format(coord[0]) + ","
+        cmd = cmd + "{:.4f}".format(coord[1]) + ","
+        cmd = cmd + "{:.4f}".format(coord[2]) + ")" # Todo: truncate to 4 decimal places
         return cmd
 
     def message_builder(self, action, points):
