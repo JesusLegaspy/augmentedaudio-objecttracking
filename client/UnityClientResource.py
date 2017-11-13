@@ -1,4 +1,3 @@
-import logging
 import socket
 import time
 
@@ -13,7 +12,7 @@ class UnityClient:
 
     def connect(self, ipaddress, port):
         self.s.connect((ipaddress, port))
-        logging.debug("UnityClient connected")
+        # logging.debug("UnityClient connected")
 
     def send(self, message):
         elapsed = time.time() - self.oldTime
@@ -31,4 +30,4 @@ class UnityClient:
 
     def close(self):
         self.s.close()
-        logging.debug("UnityClient closed")
+        # logging.debug("UnityClient closed")

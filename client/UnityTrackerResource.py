@@ -97,4 +97,6 @@ class UnityTracker:
 
     def async_get_uid(self, uids):
         for i, uid in enumerate(uids):
+            print(uid)
             self.pointStore.append([uid, 0, self.create_points[i]])
+

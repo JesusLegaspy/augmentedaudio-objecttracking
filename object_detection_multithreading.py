@@ -95,8 +95,6 @@ def worker(input_q, output_q):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-src', '--source', dest='video_source', type=int,
-                        default=0, help='Device index of the camera.')
     parser.add_argument('-a', '--ipaddress', dest='ipaddress', type=str,
                         default='10.42.0.87', help='Ip address of the Unity server.')
     parser.add_argument('-p', '--port', dest='port', type=int,
