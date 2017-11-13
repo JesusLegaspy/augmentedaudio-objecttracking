@@ -97,6 +97,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-src', '--source', dest='video_source', type=int,
                         default=0, help='Device index of the camera.')
+    parser.add_argument('-a', '--ipaddress', dest='ipaddress', type=str,
+                        default='10.42.0.87', help='Ip address of the Unity server.')
+    parser.add_argument('-p', '--port', dest='port', type=int,
+                        default=13000, help='Port of the Unity server.')
     args = parser.parse_args()
 
     input_q = Queue(2)  # fps is better if queue is higher but then more lags
@@ -106,7 +110,7 @@ if __name__ == '__main__':
         t.daemon = True
         t.start()
 
-    unity.connect()
+    unity.connect(args.ipaddress, args.port)
     # Create a PyZEDCamera object
     zed = zcam.PyZEDCamera()
 

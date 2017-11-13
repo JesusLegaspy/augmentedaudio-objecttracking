@@ -12,10 +12,10 @@ class UnityConnect:
     def __init__(self):
         return
 
-    def connect(self):
+    def connect(self, ipaddress, port):
         if self.DEV_NO_UNITY:
             return
-        self.client.connect()
+        self.client.connect(ipaddress, port)
 
     # points === [ID,(x, y, z)]
     def move(self, points):

@@ -14,8 +14,8 @@ class UnityTracker:
     def __init__(self):
         return
 
-    def connect(self):
-        self.uconnect.connect()
+    def connect(self, ipaddress, port):
+        self.uconnect.connect(ipaddress, port)
 
     def close(self):
         self.uconnect.close()

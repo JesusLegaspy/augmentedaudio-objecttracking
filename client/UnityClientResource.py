@@ -8,13 +8,11 @@ class UnityClient:
     INTERVAL_TIME = 0.01  # 0.01 is absolute minimum for now...
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    def __init__(self, ip='10.42.0.87', port=13000):
-        self.TCP_IP = ip
-        self.TCP_PORT = port
+    def __init__(self):
         self.oldTime = time.time()
 
-    def connect(self):
-        self.s.connect((self.TCP_IP, self.TCP_PORT))
+    def connect(self, ipaddress, port):
+        self.s.connect((ipaddress, port))
         logging.debug("UnityClient connected")
 
     def send(self, message):
