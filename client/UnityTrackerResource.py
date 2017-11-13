@@ -1,5 +1,4 @@
 from client.UnityConnectResource import UnityConnect
-import logging
 
 
 class UnityTracker:
@@ -15,8 +14,8 @@ class UnityTracker:
     def __init__(self):
         return
 
-    def connect(self):
-        self.uconnect.connect()
+    def connect(self, ipaddress, port):
+        self.uconnect.connect(ipaddress, port)
 
     def close(self):
         self.uconnect.close()
@@ -38,8 +37,8 @@ class UnityTracker:
         move = []
         create = [True] * len(self.frame)
 
-        logging.debug("***New Frame***")
-        logging.debug("Point store", self.pointStore)
+        # logging.debug("***New Frame***")
+        # logging.debug("Point store", self.pointStore)
 
         # Link objects from both frames based on distance
         # Note: this algorithm doesn't try to get the most links possible
@@ -65,7 +64,7 @@ class UnityTracker:
             create[ele[1]] = False
         create_indices = [i for i, c in enumerate(create) if c is True]
         self.create_points = [self.frame[i] for i in create_indices]
-        logging.debug("Added to create points: ", self.create_points)
+        # logging.debug("Added to create points: ", self.create_points)
         if len(self.create_points) != 0:
             self.uconnect.create(self.create_points, self.async_get_uid)
 
@@ -74,7 +73,7 @@ class UnityTracker:
             self.pointStore[ele[0]][2] = self.frame[ele[1]]
             self.pointStore[ele[0]][1] = 0
         move_points = [[self.pointStore[ele[0]][0], self.pointStore[ele[0]][2]] for ele in move]
-        logging.debug("Moving following points: ", move_points)
+        # logging.debug("Moving following points: ", move_points)
         if len(move_points) != 0:
             self.uconnect.move(move_points)
 
@@ -88,7 +87,7 @@ class UnityTracker:
             new_point_store.append(point)
             point[1] += 1
         self.pointStore = new_point_store
-        logging.debug("Destroying following points", destroy_points)
+        # logging.debug("Destroying following points", destroy_points)
         if len(destroy_points) != 0:
             self.uconnect.destroy(destroy_points)
 
@@ -98,4 +97,6 @@ class UnityTracker:
 
     def async_get_uid(self, uids):
         for i, uid in enumerate(uids):
+            print(uid)
             self.pointStore.append([uid, 0, self.create_points[i]])
+

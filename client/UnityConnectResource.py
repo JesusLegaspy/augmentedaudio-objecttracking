@@ -1,5 +1,4 @@
 from client.UnityClientResource import UnityClient
-import logging
 
 
 class UnityConnect:
@@ -13,21 +12,21 @@ class UnityConnect:
     def __init__(self):
         return
 
-    def connect(self):
+    def connect(self, ipaddress, port):
         if self.DEV_NO_UNITY:
             return
-        self.client.connect()
+        self.client.connect(ipaddress, port)
 
     # points === [ID,(x, y, z)]
     def move(self, points):
         if self.DEV_NO_UNITY:
             return
-        logging.debug("UnityConnect.move")
+        # logging.debug("UnityConnect.move")
         message = self.message_builder("M", points)
         self.client.send(message)
 
     def destroy(self, points):
-        logging.debug("UnityConnect.destroy")
+        # logging.debug("UnityConnect.destroy")
         if self.DEV_NO_UNITY or self.DEV_MOCK_RECEIVE:
             for point in points:
                 self.developer_uid[point[0]] = False
@@ -38,7 +37,7 @@ class UnityConnect:
 
     # coords === (x, y, z)
     def create(self, coords, uid_action_function):
-        logging.debug("UnityConnect.create")
+        # logging.debug("UnityConnect.create")
         if self.DEV_NO_UNITY:
             uids = self.dev_build_receive_uids(coords)
             uid_action_function(uids)
@@ -60,9 +59,9 @@ class UnityConnect:
     def cmd_builder(self, action, coord, uid=""):
         if action == "D":
             return "D" + str(uid)
-        cmd = action + str(uid) + "(" + f"{coord[0]:.4f}" + ","
-        cmd = cmd + f"{coord[1]:.4f}" + ","
-        cmd = cmd + f"{coord[2]:.4f}" + ")"
+        cmd = action + str(uid) + "(" + "{:.4f}".format(coord[0]) + ","
+        cmd = cmd + "{:.4f}".format(coord[1]) + ","
+        cmd = cmd + "{:.4f}".format(coord[2]) + ")" # Todo: truncate to 4 decimal places
         return cmd
 
     def message_builder(self, action, points):
@@ -93,3 +92,4 @@ class UnityConnect:
         for _ in coords:
             receive.append(self.dev_get_unused_id())
         return receive
+
