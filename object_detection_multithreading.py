@@ -95,6 +95,8 @@ def worker(input_q, output_q):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument('-m', '--maxperf', dest='maxperf', type=int,
+                        default=0, help='Max performance, but at the expense of coolness.')
     parser.add_argument('-a', '--ipaddress', dest='ipaddress', type=str,
                         default='10.42.0.87', help='Ip address of the Unity server.')
     parser.add_argument('-p', '--port', dest='port', type=int,
@@ -155,12 +157,13 @@ if __name__ == '__main__':
                 class_names = data['class_names']
                 class_colors = data['class_colors']
                 for point, name, color in zip(rec_points, class_names, class_colors):
-                    cv2.rectangle(frame, (int(point['xmin'] * image.get_width()), int(point['ymin'] * image.get_height())),
-                                  (int(point['xmax'] * image.get_width()), int(point['ymax'] * image.get_height())), color, 3)
-                    cv2.rectangle(frame, (int(point['xmin'] * image.get_width()), int(point['ymin'] * image.get_height())),
-                                  (int(point['xmin'] * image.get_width()) + len(name[0]) * 6,
-                                   int(point['ymin'] * image.get_height()) - 10), color, -1, cv2.LINE_AA)
-                    cv2.putText(frame, name[0], (int(point['xmin'] * image.get_width()), int(point['ymin'] * image.get_height())),
+                    if args.maxperf == 0:
+                        cv2.rectangle(frame, (int(point['xmin'] * image.get_width()), int(point['ymin'] * image.get_height())),
+                                      (int(point['xmax'] * image.get_width()), int(point['ymax'] * image.get_height())), color, 3)
+                        cv2.rectangle(frame, (int(point['xmin'] * image.get_width()), int(point['ymin'] * image.get_height())),
+                                      (int(point['xmin'] * image.get_width()) + len(name[0]) * 6,
+                                       int(point['ymin'] * image.get_height()) - 10), color, -1, cv2.LINE_AA)
+                        cv2.putText(frame, name[0], (int(point['xmin'] * image.get_width()), int(point['ymin'] * image.get_height())),
                                 font,
                                 0.3, (0, 0, 0), 1)
 
@@ -175,7 +178,8 @@ if __name__ == '__main__':
                 if len(centers) > 0:
                     func(centers, zed, unity)
 
-                cv2.imshow('Video', frame)
+                if args.maxperf == 0:
+                    cv2.imshow('Video', frame)
 
             fps.update()
             # logging.debug('[INFO] elapsed time: {:.2f}'.format(time.time() - t))
