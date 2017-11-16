@@ -54,7 +54,8 @@ class UnityConnect:
         self.client.send_with_response(message, self.message_decoder)
 
     def message_decoder(self, string):
-        uids = list(map(int, string.split(',')))  # uids are ID's Unity returns
+        uids = list(map(int, string.split(':')[2].split(',')))  # uids are ID's Unity returns
+        print("split:", uids)
         self.run_this(uids)
 
     def cmd_builder(self, action, coord, uid=""):
@@ -62,8 +63,7 @@ class UnityConnect:
             return "D" + str(uid)
         cmd = action + str(uid) + "(" + "{:.4f}".format(coord[0]) + ","
         cmd = cmd + "{:.4f}".format(coord[1]) + ","
-        cmd = cmd + "{:.4f}".format(coord[2]) + ")" # Todo: truncate to 4 decimal places
-        return cmd
+        cmd = cmd + "{:.4f}".format(coord[2]) + ")"
 
     def message_builder(self, action, points):
         if len(points) == 0:

@@ -3,7 +3,7 @@ from time import sleep
 import time
 
 unity = UnityTracker()
-unity.connect()
+unity.connect("192.168.0.104", 13000)
 print("Waiting 5 seconds...")
 sleep(5)
 ticks = time.time()

@@ -26,6 +26,7 @@ class UnityClient:
     def send_with_response(self, message, async_function):
         self.send(message)
         data = self.s.recv(self.BUFFER_SIZE)
+        print("raw data:", data)
         async_function(data)
 
     def close(self):
