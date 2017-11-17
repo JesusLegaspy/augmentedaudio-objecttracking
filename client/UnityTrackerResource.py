@@ -103,9 +103,15 @@ class UnityTracker:
 
         if len(uids) > len(self.create_points):
             for i in range(0, len (self.create_points)):
+                if uids[i] == "-1":
+                    print("max objects reached.")
+                    return
                 print("received uid:", uids[i])
                 self.pointStore.append([uids[i], 0, self.create_points[i]])
         else:
             for i, uid in enumerate(uids):
+                if uids[i] == "-1":
+                    print("max objects reached.")
+                    return
                 print("received uid:", uid)
                 self.pointStore.append([uid, 0, self.create_points[i]])

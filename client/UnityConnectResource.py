@@ -56,7 +56,7 @@ class UnityConnect:
 
     def message_decoder(self, string):
         string = string.decode("utf-8")
-        content = re.findall(r'[0-9]+', string, re.I)
+        content = re.findall(r'[0-9\-]+', string, re.I)
         # uids = list(map(int, string.split(':')[1].split(',')))  # uids are ID's Unity returns
         print("split:", content)
         self.run_this(content)
