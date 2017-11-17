@@ -3,11 +3,11 @@ from time import sleep
 import time
 
 unity = UnityTracker()
-unity.connect("192.168.0.101", 13000)
+unity.connect("10.42.0.87", 13000)
 print("Waiting 5 seconds...")
 sleep(5)
 ticks = time.time()
-for x in range(0, 100):
+for x in range(0, 10):
     for x in range(0, 10):
         unity.add((x, x, x))
     unity.next_frame()
