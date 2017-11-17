@@ -7,6 +7,8 @@ class UnityTracker:
     PERSISTENCE = 4  # Frames
     uconnect = UnityConnect()
 
+    TEST_Z = []
+
     pointStore = []
     frame = []
     create_points = []
@@ -96,7 +98,14 @@ class UnityTracker:
         self.frame = []
 
     def async_get_uid(self, uids):
-        for i, uid in enumerate(uids):
-            print(uid)
-            self.pointStore.append([uid, 0, self.create_points[i]])
+        if len(uids) != len(self.create_points):
+            print("ERROR: uids: ", uids, "createpoints: ", self.create_points) # todo: fix the creation bug.
 
+        if len(uids) > len(self.create_points):
+            for i in range(0, len (self.create_points)):
+                print("received uid:", uids[i])
+                self.pointStore.append([uids[i], 0, self.create_points[i]])
+        else:
+            for i, uid in enumerate(uids):
+                print("received uid:", uid)
+                self.pointStore.append([uid, 0, self.create_points[i]])

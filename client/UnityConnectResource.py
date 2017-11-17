@@ -1,4 +1,5 @@
 from client.UnityClientResource import UnityClient
+import re
 
 
 class UnityConnect:
@@ -6,7 +7,7 @@ class UnityConnect:
     run_this = None
 
     DEV_NO_UNITY = False
-    DEV_MOCK_RECEIVE = True
+    DEV_MOCK_RECEIVE = False
     developer_uid = [False]
 
     def __init__(self):
@@ -19,6 +20,7 @@ class UnityConnect:
 
     # points === [ID,(x, y, z)]
     def move(self, points):
+        #print("Moving points: ", points)
         if self.DEV_NO_UNITY:
             return
         # logging.debug("UnityConnect.move")
@@ -53,15 +55,18 @@ class UnityConnect:
         self.client.send_with_response(message, self.message_decoder)
 
     def message_decoder(self, string):
-        uids = list(map(int, string.split(',')))  # uids are ID's Unity returns
-        self.run_this(uids)
+        string = string.decode("utf-8")
+        content = re.findall(r'[0-9]+', string, re.I)
+        # uids = list(map(int, string.split(':')[1].split(',')))  # uids are ID's Unity returns
+        print("split:", content)
+        self.run_this(content)
 
     def cmd_builder(self, action, coord, uid=""):
         if action == "D":
             return "D" + str(uid)
         cmd = action + str(uid) + "(" + "{:.4f}".format(coord[0]) + ","
         cmd = cmd + "{:.4f}".format(coord[1]) + ","
-        cmd = cmd + "{:.4f}".format(coord[2]) + ")" # Todo: truncate to 4 decimal places
+        cmd = cmd + "{:.4f}".format(coord[2]) + ")"
         return cmd
 
     def message_builder(self, action, points):

@@ -1,10 +1,13 @@
 from UnityTrackerResource import UnityTracker
 from time import sleep
+import time
+
 
 unity = UnityTracker()
 unity.connect()
 print("Waiting 5 seconds...")
 sleep(5)
+ticks = time.time()
 for x in range(0, 10):
     unity.add((x, x, x))
 unity.add((15, 15, 15))
@@ -22,13 +25,15 @@ unity.add((1, 2, 3))
 unity.next_frame()
 unity.next_frame()
 unity.next_frame()
-print("HELLO!!!")
 unity.add((-7, -7, -7))
 unity.next_frame()
 unity.next_frame()
 unity.next_frame()
 unity.next_frame()
 unity.next_frame()
+print('[INFO] Total elapsed time for object tracking: {:.8f}'.format(time.time() - ticks))
 sleep(1)
 print("Done!")
 unity.close()
+t = time.time()
+

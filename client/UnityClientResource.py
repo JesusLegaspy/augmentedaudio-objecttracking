@@ -4,7 +4,7 @@ import time
 
 class UnityClient:
     BUFFER_SIZE = 1024
-    INTERVAL_TIME = 0.01  # 0.01 is absolute minimum for now...
+    INTERVAL_TIME = 0.12 # 0.06 is absolute minimum for now...
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     def __init__(self):
@@ -24,8 +24,11 @@ class UnityClient:
         self.s.sendall(message.encode('utf-8'))
 
     def send_with_response(self, message, async_function):
+        # okay now do the sending
         self.send(message)
+        print("send data:", message)
         data = self.s.recv(self.BUFFER_SIZE)
+        print("raw data:", data)
         async_function(data)
 
     def close(self):
